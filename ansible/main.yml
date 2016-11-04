@@ -1,0 +1,17 @@
+- hosts: all
+  sudo: yes
+  roles:
+    - { role: devtools            , tags: devtools }
+    - { role: group               , tags: tags }
+    - { role: sudo-users          , tags: sudo-users }
+    - { role: normal-users        , tags: normal-users }
+    - { role: authorized-keys     , tags: authorized-keys }
+    - { role: memcached           , tags: memcached }
+    - { role: redis-server        , tags: redis-server }
+    - { role: nginx               , tags: nginx }
+    - { role: php56               , tags: php56 }
+    - { role: postgresql94-server , tags: postgresql94-server }
+    - { role: composer            , tags: composer }
+    - { role: php-cs-fixer        , tags: php-cs-fixer }
+    - { role: vsftpd-server       , tags: vsftpd-server }
+    

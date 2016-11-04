@@ -1,3 +1,8 @@
+#######################################################
+#   Create virtual machine with Vagrant and Ansible   #
+#	Author: khuong85@gmail.com                        #
+#######################################################
+
 #Install
 sudo apt install virtualbox vagrant ansible nfs-kernel-server
 
