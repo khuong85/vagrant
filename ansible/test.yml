@@ -1,0 +1,9 @@
+- hosts: all
+  become: yes
+  roles:
+    - { role: yum                 , tags: yum }
+    - { role: epel-release        , tags: epel-release }
+    - { role: remi                , tags: remi }
+    - { role: nginx               , tags: nginx }
+    - { role: php56               , tags: php56 }
+    - { role: postgresql94-server , tags: postgresql94-server }

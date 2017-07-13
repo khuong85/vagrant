@@ -1,0 +1,46 @@
+- name: Install the postgresql94 rpm from a remote repo
+  yum: name=https://yum.postgresql.org/9.4/redhat/rhel-7-x86_64/pgdg-centos94-9.4-3.noarch.rpm state=present
+
+- name: Install postgresql94-server
+  yum: name={{ item }} state=present
+  with_items:
+    - postgresql94
+    - postgresql94-server
+    - postgresql94-contrib
+    - python-psycopg2
+
+- name: Uninstall postgresql-libs 9.2
+  yum: name={{ item }} state=absent
+  with_items:
+    - postgresql-libs.x86_64
+
+- name: Install php56-pgsql
+  yum: name={{ item }} state=present enablerepo=remi-php56
+  with_items:
+    - php-pgsql
+
+# Init DB
+- command: /usr/pgsql-9.4/bin/postgresql94-setup initdb creates=/var/lib/pgsql/9.4/data/postgresql.conf
+- service: name=postgresql-9.4 state=started enabled=yes
+
+# Set trust all
+- shell: echo "host  all all 127.0.0.1/32 trust" > /var/lib/pgsql/9.4/data/pg_hba.conf
+- service: name=postgresql-9.4 state=restarted enabled=yes
+
+# Create a new database by ansible module
+- postgresql_db: name={{ dev_db_name }}  encoding='UTF-8' lc_collate='ja_JP.UTF8' lc_ctype='ja_JP.UTF8' template='template0' login_host='127.0.0.1' login_user='postgres'
+- postgresql_db: name={{ test_db_name }} encoding='UTF-8' lc_collate='ja_JP.UTF8' lc_ctype='ja_JP.UTF8' template='template0' login_host='127.0.0.1' login_user='postgres'
+# Create user and grant access to database and table by ansible module
+- postgresql_user: login_host='127.0.0.1' db={{ dev_db_name }}  name={{ db_user }} password={{ db_pass }}
+- postgresql_user: login_host='127.0.0.1' db={{ test_db_name }} name={{ db_user }} password={{ db_pass }}
+
+# Create extension pg_trgm(gin/gist)
+- postgresql_ext: name=pg_trgm    db={{ dev_db_name }}  login_host='127.0.0.1' login_user=postgres
+- postgresql_ext: name=pg_trgm    db={{ test_db_name }} login_host='127.0.0.1' login_user=postgres
+- postgresql_ext: name=btree_gin  db={{ dev_db_name }}  login_host='127.0.0.1' login_user=postgres
+- postgresql_ext: name=btree_gin  db={{ test_db_name }} login_host='127.0.0.1' login_user=postgres
+- postgresql_ext: name=btree_gist db={{ dev_db_name }}  login_host='127.0.0.1' login_user=postgres
+- postgresql_ext: name=btree_gist db={{ test_db_name }} login_host='127.0.0.1' login_user=postgres
+
+# Slow query log
+- lineinfile: "dest=/var/lib/pgsql/9.4/data/postgresql.conf backup=yes state=present regexp='^log_min_duration_statement' line='log_min_duration_statement = 1s'"

@@ -1,0 +1,24 @@
+- name: Install nginx
+  yum: name={{ item }} state=present
+  with_items:
+    - nginx
+
+# create config
+- copy: backup=yes force=yes src=test.conf dest=/etc/nginx/conf.d/test.conf
+# create user config file
+- copy: backup=yes force=yes src=test.myconf dest=/etc/nginx/conf.d/test.myconf
+
+# create sample php
+- file: path=/home/vagrant/{{ project_name }}/app/webroot state=directory
+- copy: force=no src=index.php dest=/home/vagrant/{{ project_name }}/app/webroot/index.php
+- file: path=/home/vagrant owner=vagrant recurse=yes mode=0755 state=directory
+
+# chmod
+- file: path=/var/log/nginx mode=0755
+
+# SSL
+- copy: src=nginx-ssl.bash dest=/tmp/nginx-ssl.bash
+- shell: creates=/etc/nginx/server.key /bin/sh /tmp/nginx-ssl.bash
+- file: path=/tmp/nginx-ssl.bash state=absent
+
+- service: name=nginx state=started enabled=yes

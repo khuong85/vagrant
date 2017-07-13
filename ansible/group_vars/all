@@ -1,0 +1,11 @@
+# If we had any default values,
+# or values that were universally true,
+# we would put them in a file called group_vars/all:
+project_name: test
+dev_db_name: test
+test_db_name: test-test
+db_user: test
+db_pass: 10saigon
+#db_viewer: dbviewer
+#db_viewer_pass: mothaiba4
+#db_root_pass: 10mixaobo
